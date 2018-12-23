@@ -37,6 +37,4 @@ class DatabaseConnection extends PDO
 
         parent::__construct($dsn, $user, $password, $options);
     }
-
-
 }
