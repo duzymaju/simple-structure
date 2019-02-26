@@ -20,21 +20,21 @@ class Container
     /**
      * Set object
      *
-     * @param string   $name         name
-     * @param string   $className    class name
-     * @param string[] $dependencies dependencies
-     * @param array    $params       params
+     * @param string          $name               name
+     * @param string|callable $classNameOrFactory class name or factory
+     * @param string[]        $dependencies       dependencies
+     * @param array           $params             params
      *
      * @return self
      *
      * @throws BadClassCallException
      */
-    public function setObject($name, $className, array $dependencies = [], array $params = [])
+    public function setObject($name, $classNameOrFactory, array $dependencies = [], array $params = [])
     {
-        if (!class_exists($className)) {
-            throw new BadClassCallException(sprintf('Class "%s" doesn\'t exist.', $className));
+        if (!is_callable($classNameOrFactory) && !class_exists($classNameOrFactory)) {
+            throw new BadClassCallException(sprintf('Class "%s" doesn\'t exist.', $classNameOrFactory));
         }
-        $this->definitions[$name] = new Definition($this, $className, $dependencies, $params);
+        $this->definitions[$name] = new Definition($this, $classNameOrFactory, $dependencies, $params);
 
         return $this;
     }
@@ -106,15 +106,15 @@ class Container
     /**
      * Set
      *
-     * @param string   $name         name
-     * @param string   $className    class name
-     * @param string[] $dependencies dependencies
-     * @param array    $params       params
+     * @param string          $name               name
+     * @param string|callable $classNameOrFactory class name or factory
+     * @param string[]        $dependencies       dependencies
+     * @param array           $params             params
      *
      * @return self
      */
-    public function set($name, $className, array $dependencies = [], array $params = [])
+    public function set($name, $classNameOrFactory, array $dependencies = [], array $params = [])
     {
-        return $this->setObject($name, $className, $dependencies, $params);
+        return $this->setObject($name, $classNameOrFactory, $dependencies, $params);
     }
 }

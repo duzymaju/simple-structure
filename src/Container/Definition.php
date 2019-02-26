@@ -12,8 +12,8 @@ class Definition
     /** @var Container */
     private $container;
 
-    /** @var string */
-    private $className;
+    /** @var string|callable */
+    private $classNameOrFactory;
 
     /** @var string[] */
     private $dependencies;
@@ -24,15 +24,15 @@ class Definition
     /**
      * Construct
      *
-     * @param Container $container          container
-     * @param string    $className          class name
-     * @param string[]  $dependencies       dependencies
-     * @param array     $params             params
+     * @param Container       $container          container
+     * @param string|callable $classNameOrFactory class name or factory
+     * @param string[]        $dependencies       dependencies
+     * @param array           $params             params
      */
-    public function __construct(Container $container, $className, array $dependencies = [], array $params = [])
+    public function __construct(Container $container, $classNameOrFactory, array $dependencies = [], array $params = [])
     {
         $this->container = $container;
-        $this->className = $className;
+        $this->classNameOrFactory = $classNameOrFactory;
         $this->dependencies = $dependencies;
         $this->params = $params;
     }
@@ -46,7 +46,7 @@ class Definition
      */
     public function create(array $params = [])
     {
-        $className = $this->className;
+        $classNameOrFactory = $this->classNameOrFactory;
         $dependencies = array_map(function ($typeName) {
             $parts = explode(':', $typeName);
             if (count($parts) < 2) {
@@ -63,7 +63,10 @@ class Definition
                     return $this->container->get($parts[1]);
             }
         }, $this->dependencies);
+        $instance = is_callable($classNameOrFactory) ?
+            $classNameOrFactory(...$dependencies, ...$this->params, ...$params) :
+            new $classNameOrFactory(...$dependencies, ...$this->params, ...$params);
 
-        return new $className(...$dependencies, ...$this->params, ...$params);
+        return $instance;
     }
 }
