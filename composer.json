@@ -1,6 +1,6 @@
 {
     "name": "majpage/simple-structure",
-    "version": "0.1.3",
+    "version": "0.2.0",
     "description": "Simple PHP project's structure",
     "type": "library",
     "license": "MIT",
@@ -21,7 +21,6 @@
         "ext-fileinfo": "*",
         "ext-json": "*",
         "ext-mbstring": "*",
-        "ext-pdo": "*",
         "ext-zip": "*"
     },
     "require-dev": {

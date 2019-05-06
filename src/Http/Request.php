@@ -390,12 +390,13 @@ class Request
     {
         if (!$this->content) {
             $this->content = file_get_contents('php://input') ?: null;
-            if ($format == 'json') {
-                $this->content = json_decode($this->content);
-            } elseif ($format == 'json-array') {
-                $this->content = json_decode($this->content, true);
-            }
         }
+        if ($format === 'json') {
+            return json_decode($this->content);
+        } elseif ($format === 'json-array') {
+            return json_decode($this->content, true);
+        }
+
         return $this->content;
     }
 
