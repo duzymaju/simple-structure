@@ -141,14 +141,14 @@ class Client
         }
 
         $content = curl_exec($connection);
-        $status = curl_getinfo($connection, CURLINFO_HTTP_CODE);
+        $statusCode = curl_getinfo($connection, CURLINFO_HTTP_CODE);
         curl_close($connection);
 
 
-        if ($options['ignoreErrors'] === false && ($status < Response::OK || $status >= 300)) {
+        if ($options['ignoreErrors'] === false && ($statusCode < Response::OK || $statusCode >= 300)) {
             throw new RuntimeException('An exception occurred during content receiving.');
         }
 
-        return new Resource($content, $headers, $status);
+        return new Resource($content, $headers, $statusCode);
     }
 }

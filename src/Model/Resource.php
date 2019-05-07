@@ -17,20 +17,20 @@ class Resource
     private $content;
 
     /** @var int */
-    private $status;
+    private $statusCode;
 
     /**
      * Construct
      *
-     * @param string $content content
-     * @param array  $headers headers
-     * @param int    $status  status
+     * @param string $content    content
+     * @param array  $headers    headers
+     * @param int    $statusCode status code
      */
-    public function __construct($content, array $headers = [], $status = Response::OK)
+    public function __construct($content, array $headers = [], $statusCode = Response::OK)
     {
         $this->headers = new ParamPack($headers);
         $this->content = $content;
-        $this->status = $status;
+        $this->statusCode = $statusCode;
     }
 
     /**
@@ -72,12 +72,12 @@ class Resource
     }
 
     /**
-     * Get status
+     * Get status code
      *
      * @return int
      */
-    public function getStatus()
+    public function getStatusCode()
     {
-        return $this->status;
+        return $this->statusCode;
     }
 }
