@@ -144,7 +144,6 @@ class Client
         $statusCode = curl_getinfo($connection, CURLINFO_HTTP_CODE);
         curl_close($connection);
 
-
         if ($options['ignoreErrors'] === false && ($statusCode < Response::OK || $statusCode >= 300)) {
             throw new RuntimeException('An exception occurred during content receiving.');
         }
