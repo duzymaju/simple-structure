@@ -102,18 +102,24 @@ class Client
         $type = strtolower($type);
         $body = $type === Request::GET ? '' :
             (is_array($data) || is_object($data) ? json_encode($data) : (string) $data);
+        $options = array_merge([
+            'ignoreErrors' => false,
+            'maxRedirs' => 0,
+            'returnHeaders' => false,
+            'timeout' => 30,
+        ], $options);
 
         $connection = curl_init();
         curl_setopt($connection, CURLOPT_URL, $url);
         curl_setopt($connection, CURLOPT_CUSTOMREQUEST, $type);
         curl_setopt($connection, CURLOPT_POSTFIELDS, $body);
-        curl_setopt($connection, CURLOPT_TIMEOUT, 30);
-        curl_setopt($connection, CURLOPT_MAXREDIRS, 0);
+        curl_setopt($connection, CURLOPT_TIMEOUT, $options['timeout']);
+        curl_setopt($connection, CURLOPT_MAXREDIRS, $options['maxRedirs']);
         curl_setopt($connection, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($connection, CURLOPT_HTTPHEADER, $requestHeaders);
 
         $headers = [];
-        if (array_key_exists('returnHeaders', $options) && $options['returnHeaders']) {
+        if ($options['returnHeaders'] === true) {
             curl_setopt($connection, CURLOPT_HEADERFUNCTION, function ($curl, $header) use (&$headers) {
                 $length = strlen($header);
                 $header = explode(':', $header, 2);
@@ -136,11 +142,13 @@ class Client
 
         $content = curl_exec($connection);
         $status = curl_getinfo($connection, CURLINFO_HTTP_CODE);
-        if ($status < Response::OK || $status >= 300) {
-            throw new RuntimeException('An exception occurred during content receiving.');
-        }
         curl_close($connection);
 
-        return new Resource($content, $headers);
+
+        if ($options['ignoreErrors'] === false && ($status < Response::OK || $status >= 300)) {
+            throw new RuntimeException('An exception occurred during content receiving.');
+        }
+
+        return new Resource($content, $headers, $status);
     }
 }

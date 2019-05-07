@@ -2,6 +2,7 @@
 
 namespace SimpleStructure\Model;
 
+use SimpleStructure\Http\Response;
 use SimpleStructure\Tool\ParamPack;
 
 /**
@@ -15,16 +16,21 @@ class Resource
     /** @var string */
     private $content;
 
+    /** @var int */
+    private $status;
+
     /**
      * Construct
      *
      * @param string $content content
      * @param array  $headers headers
+     * @param int    $status  status
      */
-    public function __construct($content, array $headers = [])
+    public function __construct($content, array $headers = [], $status = Response::OK)
     {
         $this->headers = new ParamPack($headers);
         $this->content = $content;
+        $this->status = $status;
     }
 
     /**
@@ -63,5 +69,15 @@ class Resource
     public function getContentParams()
     {
         return new ParamPack($this->getContent('json-array'));
+    }
+
+    /**
+     * Get status
+     *
+     * @return int
+     */
+    public function getStatus()
+    {
+        return $this->status;
     }
 }
