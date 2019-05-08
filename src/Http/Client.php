@@ -103,7 +103,7 @@ class Client
         $body = $type === Request::GET ? '' :
             (is_array($data) || is_object($data) ? json_encode($data) : (string) $data);
         $options = array_merge([
-            'ignoreErrors' => false,
+            'ignoreHttpErrors' => false,
             'maxRedirs' => 0,
             'returnHeaders' => false,
             'timeout' => 30,
@@ -141,11 +141,16 @@ class Client
         }
 
         $content = curl_exec($connection);
+        $errorNo = curl_errno($connection);
         $statusCode = curl_getinfo($connection, CURLINFO_HTTP_CODE);
         curl_close($connection);
 
-        if ($options['ignoreErrors'] === false && ($statusCode < Response::OK || $statusCode >= 300)) {
-            throw new RuntimeException('An exception occurred during content receiving.');
+        if ($errorNo === CURLE_HTTP_POST_ERROR) {
+            throw new RuntimeException('HTTP POST error occurred during content sending.');
+        } elseif ($errorNo !== CURLE_OK && $errorNo !== CURLE_HTTP_NOT_FOUND) {
+            throw new RuntimeException('An error occurred during content sending.');
+        } elseif ($options['ignoreHttpErrors'] === false && ($statusCode < Response::OK || $statusCode >= 300)) {
+            throw new RuntimeException('An error received in HTTP response.');
         }
 
         return new Resource($content, $headers, $statusCode);
