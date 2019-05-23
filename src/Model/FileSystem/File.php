@@ -2,6 +2,7 @@
 
 namespace SimpleStructure\Model\FileSystem;
 
+use CURLFile;
 use finfo;
 use SimpleStructure\Exception\BadMethodCallException;
 use SimpleStructure\Exception\InvalidArgumentException;
@@ -154,6 +155,18 @@ class File
         }
 
         return null;
+    }
+
+    /**
+     * Get CURL file
+     *
+     * @return CURLFile
+     */
+    public function getCurlFile()
+    {
+        $file = new CURLFile($this->path, $this->getContentType(), $this->fileName . '.' . $this->extension);
+
+        return $file;
     }
 
     /**

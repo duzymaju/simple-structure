@@ -99,9 +99,9 @@ class Client
      */
     public function makeRequest($type, $url, $data = '', array $requestHeaders = [], array $options = [])
     {
-        $type = strtolower($type);
-        $body = $type === Request::GET ? '' :
-            (is_array($data) || is_object($data) ? json_encode($data) : (string) $data);
+        $type = strtoupper($type);
+        $body = $type === Request::GET ? '' : ($data instanceof Form ? $data->toPostFields() :
+            (is_array($data) || is_object($data) ? json_encode($data) : (string) $data));
         $options = array_merge([
             'ignoreHttpErrors' => false,
             'maxRedirs' => 0,
