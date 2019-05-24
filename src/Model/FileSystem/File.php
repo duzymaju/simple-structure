@@ -261,11 +261,25 @@ class File
     /**
      * Get size
      *
-     * @return int|null
+     * @return int|false
      */
     public function getSize()
     {
-        return $this->size;
+        $size = isset($this->size) ? $this->size : filesize($this->path);
+
+        return $size;
+    }
+
+    /**
+     * Get content
+     *
+     * @return string|false
+     */
+    public function getContent()
+    {
+        $content = file_get_contents($this->path);
+
+        return $content;
     }
 
     /**
