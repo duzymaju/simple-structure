@@ -164,7 +164,7 @@ class File
      */
     public function getCurlFile()
     {
-        $file = new CURLFile($this->path, $this->getContentType(), $this->fileName . '.' . $this->extension);
+        $file = new CURLFile($this->path, $this->getContentType(), $this->getFileNameWithExt());
 
         return $file;
     }
@@ -234,6 +234,16 @@ class File
     public function getFileName()
     {
         return $this->fileName;
+    }
+
+    /**
+     * Get file name with extension
+     *
+     * @return string
+     */
+    public function getFileNameWithExt()
+    {
+        return $this->fileName . '.' . $this->extension;
     }
 
     /**
