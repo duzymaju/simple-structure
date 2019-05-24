@@ -76,7 +76,7 @@ class File
      */
     public function __construct($path, $fileName, $extension, $size = null, $error = null, $temporary = false)
     {
-        if (empty($path) || !file_exists($path)) {
+        if (empty($path) || !is_file($path)) {
             throw new InvalidArgumentException('File path is invalid!');
         }
 
@@ -176,7 +176,7 @@ class File
      */
     public function exists()
     {
-        $exists = file_exists($this->path);
+        $exists = is_file($this->path);
 
         return $exists;
     }
