@@ -129,7 +129,7 @@ class File
             }
             $this->temporary = false;
         } else {
-            if (!copy($this->path, $destination->path)) {
+            if (!rename($this->path, $destination->path)) {
                 throw new RuntimeException(sprintf('An error occurred during file %s moving.', $this->path));
             }
         }
