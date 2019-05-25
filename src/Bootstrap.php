@@ -104,6 +104,8 @@ class Bootstrap
      */
     public function execute()
     {
+        /** @var bool $isDev */
+        $isDev = $this->container->get('isDev');
         /** @var Response $response */
         $response = $this->container->get('response');
         try {
@@ -117,12 +119,14 @@ class Bootstrap
                 $response->send();
             }
             throw new NotFoundException('Page not found');
-        } catch (Exception $e) {
+        } catch (Exception $exception) {
+            if ($isDev || $exception instanceof WebException) {
+                $response->setContent([
+                    'error' => $exception->getMessage(),
+                ]);
+            }
             $response
-                ->setStatusCode($e instanceof WebException ? $e->getCode() : Response::INTERNAL_ERROR)
-                ->setContent([
-                    'error' => $e->getMessage(),
-                ])
+                ->setStatusCode($exception instanceof WebException ? $exception->getCode() : Response::INTERNAL_ERROR)
                 ->send()
             ;
         }

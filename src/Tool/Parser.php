@@ -58,6 +58,39 @@ class Parser
     }
 
     /**
+     * Parse slug
+     *
+     * @param mixed  $value       value
+     * @param string $divider     divider
+     * @param bool   $toLowerCase to lower case
+     *
+     * @return string
+     */
+    public static function parseSlug($value, $divider = '-', $toLowerCase = true)
+    {
+        $changeFrom = [
+            'Ą', 'ą', 'Ć', 'ć', 'Ę', 'ę', 'Ł', 'ł', 'Ń', 'ń', 'Ó', 'ó', 'Ś', 'ś', 'Ź', 'ź', 'Ż', 'ż', ' '
+        ];
+        $changeTo = [
+            'A', 'a', 'C', 'c', 'E', 'e', 'L', 'l', 'N', 'n', 'O', 'o', 'S', 's', 'Z', 'z', 'Z', 'z', $divider
+        ];
+        $simpleText = str_replace($changeFrom, $changeTo, trim(strip_tags((string) $value)));
+        $flags = '';
+        if ($toLowerCase) {
+            $simpleText = strtolower($simpleText);
+        } else {
+            $flags .= 'i';
+        }
+        $slug = preg_replace('#[^0-9a-z' . $divider . ']#' . $flags, '', $simpleText);
+
+        while ($slug != $noDoubledHyphens = str_replace($divider . $divider, $divider, $slug)) {
+            $slug = $noDoubledHyphens;
+        }
+
+        return $slug;
+    }
+
+    /**
      * Parse object
      *
      * @param mixed $values values
