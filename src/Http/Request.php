@@ -94,7 +94,7 @@ class Request
      */
     public function __construct()
     {
-        $this->headers = new ParamPack(array_change_key_case(getallheaders()));
+        $this->headers = new ParamPack($this->getHeaders());
         $this->query = new ParamPack($_GET);
         $this->request = new ParamPack($_POST);
         $this->files = new FilesParamPack($_FILES);
@@ -516,5 +516,30 @@ class Request
             null;
 
         return !empty($requestedWith) && strtolower($requestedWith) == 'xmlhttprequest';
+    }
+
+    /**
+     * Get headers
+     *
+     * @return array
+     */
+    private function getHeaders()
+    {
+        if (function_exists('getallheaders')) {
+            $headers = getallheaders();
+            if (is_array($headers)) {
+                return array_change_key_case($headers, CASE_LOWER);
+            }
+        }
+
+        $headers = [];
+        foreach ($_SERVER as $name => $value) {
+            $nameParts = explode('_', $name);
+            if (array_shift($nameParts) === 'HTTP') {
+                $headers[str_replace(' ', '-', implode('-', $nameParts))] = $value;
+            }
+        }
+
+        return array_change_key_case($headers, CASE_LOWER);
     }
 }

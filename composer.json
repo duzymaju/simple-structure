@@ -17,6 +17,7 @@
     },
     "require": {
         "php" : ">=5.6",
+        "ext-apache": "*",
         "ext-curl": "*",
         "ext-fileinfo": "*",
         "ext-json": "*",

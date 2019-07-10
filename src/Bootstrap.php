@@ -34,9 +34,9 @@ class Bootstrap
         $this->container->setParam('baseDir', $baseDir);
         if ($this->isRequest()) {
             $this->container
-                ->setObject('action', 'SimpleStructure\Model\Action')
-                ->setObject('request', 'SimpleStructure\Http\Request')
-                ->setObject('response', 'SimpleStructure\Http\Response')
+                ->setObject('action', Action::class)
+                ->setObject('request', Request::class)
+                ->setObject('response', Response::class)
             ;
         }
     }
