@@ -23,6 +23,9 @@ class Bootstrap
     /** @var Action[] */
     private $actions = [];
 
+    /** @var callable|null */
+    private $errorCallback;
+
     /**
      * Construct
      *
@@ -100,6 +103,20 @@ class Bootstrap
     }
 
     /**
+     * Define errors
+     *
+     * @param callable $errorCallback error callback
+     *
+     * @return self
+     */
+    public function defineErrors(callable $errorCallback)
+    {
+        $this->errorCallback = $errorCallback;
+
+        return $this;
+    }
+
+    /**
      * Execute
      */
     public function execute()
@@ -120,15 +137,19 @@ class Bootstrap
             }
             throw new NotFoundException('Page not found');
         } catch (Exception $exception) {
+            $statusCode = $exception instanceof WebException ? $exception->getCode() : Response::INTERNAL_ERROR;
+            $response->setStatusCode($statusCode);
             if ($isDev || $exception instanceof WebException) {
-                $response->setContent([
-                    'error' => $exception->getMessage(),
-                ]);
+                if (isset($this->errorCallback)) {
+                    $errorCallback = $this->errorCallback;
+                    $errorCallback($this->container, $response, $request, $exception);
+                } else {
+                    $response->setContent([
+                        'error' => $exception->getMessage(),
+                    ]);
+                }
             }
-            $response
-                ->setStatusCode($exception instanceof WebException ? $exception->getCode() : Response::INTERNAL_ERROR)
-                ->send()
-            ;
+            $response->send();
         }
     }
 
