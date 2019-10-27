@@ -11,10 +11,10 @@ final class PaginatorTest extends TestCase
     public function testEmptyPaginator()
     {
         $paginator = new Paginator();
-        $this->assertEquals($paginator->count(), 0);
-        $this->assertEquals($paginator->pack, null);
-        $this->assertEquals($paginator->page, 1);
-        $this->assertEquals($paginator->pages, null);
+        $this->assertEquals(0, $paginator->count());
+        $this->assertEquals(null, $paginator->pack);
+        $this->assertEquals(1, $paginator->page);
+        $this->assertEquals(null, $paginator->pages);
         $this->assertTrue($paginator->isLast());
     }
 
@@ -24,10 +24,10 @@ final class PaginatorTest extends TestCase
     public function testCustomPageOfPaginatorWithoutTotalNumber()
     {
         $paginator = new Paginator([ 6, 7, 8, 9, 10 ], 2, 5);
-        $this->assertEquals($paginator->count(), 5);
-        $this->assertEquals($paginator->pack, 5);
-        $this->assertEquals($paginator->page, 2);
-        $this->assertEquals($paginator->pages, null);
+        $this->assertEquals(5, $paginator->count());
+        $this->assertEquals(5, $paginator->pack);
+        $this->assertEquals(2, $paginator->page);
+        $this->assertEquals(null, $paginator->pages);
         $this->assertFalse($paginator->isLast());
     }
 
@@ -37,10 +37,10 @@ final class PaginatorTest extends TestCase
     public function testApparentLastPageOfPaginatorWithoutTotalNumber()
     {
         $paginator = new Paginator([ 11, 12, 13, 14, 15 ], 3, 5);
-        $this->assertEquals($paginator->count(), 5);
-        $this->assertEquals($paginator->pack, 5);
-        $this->assertEquals($paginator->page, 3);
-        $this->assertEquals($paginator->pages, null);
+        $this->assertEquals(5, $paginator->count());
+        $this->assertEquals(5, $paginator->pack);
+        $this->assertEquals(3, $paginator->page);
+        $this->assertEquals(null, $paginator->pages);
         $this->assertFalse($paginator->isLast());
     }
 
@@ -50,10 +50,10 @@ final class PaginatorTest extends TestCase
     public function testRelLastPageOfPaginatorWithoutTotalNumber()
     {
         $paginator = new Paginator([ 11, 12, 13 ], 3, 5);
-        $this->assertEquals($paginator->count(), 3);
-        $this->assertEquals($paginator->pack, 5);
-        $this->assertEquals($paginator->page, 3);
-        $this->assertEquals($paginator->pages, null);
+        $this->assertEquals(3, $paginator->count());
+        $this->assertEquals(5, $paginator->pack);
+        $this->assertEquals(3, $paginator->page);
+        $this->assertEquals(null, $paginator->pages);
         $this->assertTrue($paginator->isLast());
     }
 
@@ -63,10 +63,10 @@ final class PaginatorTest extends TestCase
     public function testCustomPageOfPaginatorWithTotalNumber()
     {
         $paginator = new Paginator([ 6, 7, 8, 9, 10 ], 2, 5, 13);
-        $this->assertEquals($paginator->count(), 5);
-        $this->assertEquals($paginator->pack, 5);
-        $this->assertEquals($paginator->page, 2);
-        $this->assertEquals($paginator->pages, 3);
+        $this->assertEquals(5, $paginator->count());
+        $this->assertEquals(5, $paginator->pack);
+        $this->assertEquals(2, $paginator->page);
+        $this->assertEquals(3, $paginator->pages);
         $this->assertFalse($paginator->isLast());
     }
 
@@ -76,10 +76,10 @@ final class PaginatorTest extends TestCase
     public function testApparentLastPageOfPaginatorWithTotalNumber()
     {
         $paginator = new Paginator([ 11, 12, 13, 14, 15 ], 3, 5, 15);
-        $this->assertEquals($paginator->count(), 5);
-        $this->assertEquals($paginator->pack, 5);
-        $this->assertEquals($paginator->page, 3);
-        $this->assertEquals($paginator->pages, 3);
+        $this->assertEquals(5, $paginator->count());
+        $this->assertEquals(5, $paginator->pack);
+        $this->assertEquals(3, $paginator->page);
+        $this->assertEquals(3, $paginator->pages);
         $this->assertTrue($paginator->isLast());
     }
 
@@ -89,10 +89,11 @@ final class PaginatorTest extends TestCase
     public function testRealLastPageOfPaginatorWithTotalNumber()
     {
         $paginator = new Paginator([ 11, 12, 13 ], 3, 5, 13);
-        $this->assertEquals($paginator->count(), 3);
-        $this->assertEquals($paginator->pack, 5);
-        $this->assertEquals($paginator->page, 3);
-        $this->assertEquals($paginator->pages, 3);
+        $this->assertEquals(3, $paginator->count());
+        $this->assertEquals(5, $paginator->pack);
+        $this->assertEquals(3, $paginator->page);
+        $this->assertEquals(3, $paginator->pages);
         $this->assertTrue($paginator->isLast());
+        $this->assertEquals('{"isLast":true,"list":[11,12,13],"pack":5,"page":3,"pages":3}', json_encode($paginator));
     }
 }

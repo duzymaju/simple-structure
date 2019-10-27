@@ -170,18 +170,8 @@ class Response
         }
         if (is_array($this->content) || is_object($this->content)) {
             $this->headers->add('Content-Type', 'application/json');
-            if (!($this->content instanceof Paginator)) {
-                $content = json_encode($this->content);
-            } elseif (!isset($this->content->pack)) {
-                $content = json_encode($this->content->getArrayCopy());
-            } else {
-                $content = json_encode([
-                    'isLast' => $this->content->isLast(),
-                    'list' => $this->content->getArrayCopy(),
-                    'pack' => $this->content->pack,
-                    'page' => $this->content->page,
-                ]);
-            }
+            $content = $this->content instanceof Paginator && !isset($this->content->pack) ?
+                json_encode($this->content->getArrayCopy()) : json_encode($this->content);
         } else {
             if (!$this->headers->has('Content-Type')) {
                 $this->headers->add('Content-Type', 'text/plain');

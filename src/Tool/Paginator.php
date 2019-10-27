@@ -2,10 +2,12 @@
 
 namespace SimpleStructure\Tool;
 
+use JsonSerializable;
+
 /**
  * Paginator tool
  */
-class Paginator extends ArrayObject
+class Paginator extends ArrayObject implements JsonSerializable
 {
     /** @var int */
     public $page;
@@ -31,7 +33,7 @@ class Paginator extends ArrayObject
         $this->page = max(1, (int) $page);
         $this->pack = isset($pack) ? max(1, (int) $pack) : null;
         $this->pages = !isset($totalNumber) ? null :
-            (isset($this->pack) ? ceil(max(0, (int) $totalNumber) / $this->pack) : 1);
+            (isset($this->pack) ? (int) ceil(max(0, (int) $totalNumber) / $this->pack) : 1);
     }
 
     /**
@@ -47,5 +49,21 @@ class Paginator extends ArrayObject
         $isLast = isset($this->pages) ? $this->page >= $this->pages : $this->pack > $this->count();
 
         return $isLast;
+    }
+
+    /**
+     * JSON serialize
+     *
+     * @return array
+     */
+    public function jsonSerialize()
+    {
+        return [
+            'isLast' => $this->isLast(),
+            'list' => $this->getArrayCopy(),
+            'pack' => $this->pack,
+            'page' => $this->page,
+            'pages' => $this->pages,
+        ];
     }
 }

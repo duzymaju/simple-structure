@@ -12,12 +12,12 @@ final class ParserTest extends TestCase
     {
         $this->assertEquals(Parser::parseSlug('s GętĄ9 2[3]"\'6'), 's-geta9-236');
 
-        $this->assertEquals(Parser::parseSlug('s GętĄ9 2[3]"\'6', '-'), 's-geta9-236');
-        $this->assertEquals(Parser::parseSlug('s GętĄ9 2[3]"\'6', '_'), 's_geta9_236');
-        $this->assertEquals(Parser::parseSlug('s GętĄ9 2[3]"\'6', ''), 'sgeta9236');
+        $this->assertEquals('s-geta9-236', Parser::parseSlug('s GętĄ9 2[3]"\'6', '-'));
+        $this->assertEquals('s_geta9_236', Parser::parseSlug('s GętĄ9 2[3]"\'6', '_'));
+        $this->assertEquals('sgeta9236', Parser::parseSlug('s GętĄ9 2[3]"\'6', ''));
 
-        $this->assertEquals(Parser::parseSlug('s GętĄ9 2[3]"\'6', '-', false), 's-GetA9-236');
-        $this->assertEquals(Parser::parseSlug('s GętĄ9 2[3]"\'6', '_', false), 's_GetA9_236');
-        $this->assertEquals(Parser::parseSlug('s GętĄ9 2[3]"\'6', '', false), 'sGetA9236');
+        $this->assertEquals('s-GetA9-236', Parser::parseSlug('s GętĄ9 2[3]"\'6', '-', false));
+        $this->assertEquals('s_GetA9_236', Parser::parseSlug('s GętĄ9 2[3]"\'6', '_', false));
+        $this->assertEquals('sGetA9236', Parser::parseSlug('s GętĄ9 2[3]"\'6', '', false));
     }
 }
