@@ -58,12 +58,16 @@ class Paginator extends ArrayObject implements JsonSerializable
      */
     public function jsonSerialize()
     {
-        return [
+        $result = [
             'isLast' => $this->isLast(),
             'list' => $this->getArrayCopy(),
             'pack' => $this->pack,
             'page' => $this->page,
-            'pages' => $this->pages,
         ];
+        if (isset($this->pages)) {
+            $result['pages'] = $this->pages;
+        }
+
+        return $result;
     }
 }
