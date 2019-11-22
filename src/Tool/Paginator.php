@@ -37,6 +37,26 @@ class Paginator extends ArrayObject implements JsonSerializable
     }
 
     /**
+     * Get in groups
+     *
+     * @param int $groupsNumber groups number
+     *
+     * @return array
+     */
+    public function getInGroups($groupsNumber)
+    {
+        $itemGroups = [];
+        $offset = 0;
+        for ($i = 0; $i < $groupsNumber; $i++) {
+            $limit = ceil(($this->count() - $offset) / ($groupsNumber - $i));
+            $itemGroups[] = array_slice($this->getArrayCopy(), $offset, $limit);
+            $offset += $limit;
+        }
+
+        return $itemGroups;
+    }
+
+    /**
      * Is last
      *
      * @return bool
