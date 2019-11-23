@@ -10,14 +10,17 @@ use Throwable;
  */
 class NotFoundException extends WebException
 {
+    /** @const string */
+    const MESSAGE = 'Not Found';
+
     /**
      * Construct
      *
-     * @param string         $message  message
+     * @param string|null    $message  message
      * @param Throwable|null $previous previous
      */
-    public function __construct($message = 'Not Found', Throwable $previous = null)
+    public function __construct($message = null, Throwable $previous = null)
     {
-        parent::__construct($message, Response::NOT_FOUND, $previous);
+        parent::__construct(isset($message) ? $message : self::MESSAGE, Response::NOT_FOUND, $previous);
     }
 }

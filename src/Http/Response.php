@@ -2,7 +2,11 @@
 
 namespace SimpleStructure\Http;
 
+use SimpleStructure\Exception\BadRequestException;
 use SimpleStructure\Exception\CookieException;
+use SimpleStructure\Exception\InternalException;
+use SimpleStructure\Exception\NotFoundException;
+use SimpleStructure\Exception\UnauthorizedException;
 use SimpleStructure\Tool\Paginator;
 use SimpleStructure\Tool\ParamPack;
 
@@ -62,11 +66,11 @@ class Response
         self::MULTIPLE_CHOICES => 'Multiple Choices',
         self::MOVED_PERMANENTLY => 'Moved Permanently',
         self::FOUND => 'Found',
-        self::BAD_REQUEST => 'Bad Request',
-        self::UNAUTHORIZED => 'Unauthorized',
+        self::BAD_REQUEST => BadRequestException::MESSAGE,
+        self::UNAUTHORIZED => UnauthorizedException::MESSAGE,
         self::FORBIDDEN => 'Forbidden',
-        self::NOT_FOUND => 'Not Found',
-        self::INTERNAL_ERROR => 'Internal Server Error',
+        self::NOT_FOUND => NotFoundException::MESSAGE,
+        self::INTERNAL_ERROR => InternalException::MESSAGE,
         self::UNAVAILABLE => 'Service Unavailable',
     ];
 

@@ -10,13 +10,17 @@ use Throwable;
  */
 class BadRequestException extends WebException
 {
+    /** @const string */
+    const MESSAGE = 'Bad Request';
+
     /**
      * Construct
-     * @param string         $message  message
+     *
+     * @param string|null    $message  message
      * @param Throwable|null $previous previous
      */
-    public function __construct($message = 'Bad Request', Throwable $previous = null)
+    public function __construct($message = null, Throwable $previous = null)
     {
-        parent::__construct($message, Response::BAD_REQUEST, $previous);
+        parent::__construct(isset($message) ? $message : self::MESSAGE, Response::BAD_REQUEST, $previous);
     }
 }

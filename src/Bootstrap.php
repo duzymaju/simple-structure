@@ -3,6 +3,7 @@
 namespace SimpleStructure;
 
 use Exception;
+use SimpleStructure\Exception\InternalException;
 use SimpleStructure\Exception\NotFoundException;
 use SimpleStructure\Exception\WebException;
 use SimpleStructure\Http\Request;
@@ -135,19 +136,20 @@ class Bootstrap
                 $action->execute($this->container, $response, $request);
                 $response->send();
             }
-            throw new NotFoundException('Page not found');
+            throw new NotFoundException();
         } catch (Exception $exception) {
-            $statusCode = $exception instanceof WebException ? $exception->getCode() : Response::INTERNAL_ERROR;
-            $response->setStatusCode($statusCode);
-            if ($isDev || $exception instanceof WebException) {
-                if (isset($this->errorCallback)) {
-                    $errorCallback = $this->errorCallback;
-                    $errorCallback($this->container, $response, $request, $exception);
-                } else {
-                    $response->setContent([
-                        'error' => $exception->getMessage(),
-                    ]);
-                }
+            if (!($exception instanceof WebException)) {
+                $message = $isDev && !empty($exception->getMessage()) ? $exception->getMessage() : null;
+                $exception = new InternalException($message, $exception);
+            }
+            $response->setStatusCode($exception->getCode());
+            if (isset($this->errorCallback)) {
+                $errorCallback = $this->errorCallback;
+                $errorCallback($this->container, $response, $request, $exception);
+            } elseif ($isDev) {
+                $response->setContent([
+                    'error' => $exception->getMessage(),
+                ]);
             }
             $response->send();
         }

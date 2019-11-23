@@ -6,12 +6,12 @@ use SimpleStructure\Http\Response;
 use Throwable;
 
 /**
- * Unauthorized exception
+ * Internal exception
  */
-class UnauthorizedException extends WebException
+class InternalException extends WebException
 {
     /** @const string */
-    const MESSAGE = 'Unauthorized';
+    const MESSAGE = 'Internal Server Error';
 
     /**
      * Construct
@@ -21,6 +21,6 @@ class UnauthorizedException extends WebException
      */
     public function __construct($message = null, Throwable $previous = null)
     {
-        parent::__construct(isset($message) ? $message : self::MESSAGE, Response::UNAUTHORIZED, $previous);
+        parent::__construct(isset($message) ? $message : self::MESSAGE, Response::INTERNAL_ERROR, $previous);
     }
 }
