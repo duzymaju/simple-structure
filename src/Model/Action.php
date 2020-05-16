@@ -33,24 +33,42 @@ class Action
     public function __construct($method, $path, callable $callback)
     {
         $this->callback = $callback;
-        $this->method = $method;
+        $this->method = strtolower($method);
         $this->path = rtrim($path, '/');
     }
 
     /**
-     * Is requested
+     * Get method
+     *
+     * @return string
+     */
+    public function getMethod()
+    {
+        return $this->method;
+    }
+
+    /**
+     * Has matched method
      *
      * @param Request $request request
      *
      * @return bool
      */
-    public function isRequested(Request $request)
+    public function hasMatchedMethod(Request $request)
+    {
+        return $this->method === $request->getMethod();
+    }
+
+    /**
+     * Has matched path
+     *
+     * @param Request $request request
+     *
+     * @return bool
+     */
+    public function hasMatchedPath(Request $request)
     {
         $this->variables = [];
-
-        if (strtolower($this->method) !== $request->getMethod()) {
-            return false;
-        }
 
         $requestPath = explode('/', $request->getPath());
         $actionPath = explode('/', $this->path);
