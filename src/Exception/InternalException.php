@@ -2,8 +2,8 @@
 
 namespace SimpleStructure\Exception;
 
+use Exception;
 use SimpleStructure\Http\Response;
-use Throwable;
 
 /**
  * Internal exception
@@ -17,9 +17,9 @@ class InternalException extends WebException
      * Construct
      *
      * @param string|null    $message  message
-     * @param Throwable|null $previous previous
+     * @param Exception|null $previous previous
      */
-    public function __construct($message = null, Throwable $previous = null)
+    public function __construct($message = null, $previous = null)
     {
         parent::__construct(isset($message) ? $message : self::MESSAGE, Response::INTERNAL_ERROR, $previous);
     }
