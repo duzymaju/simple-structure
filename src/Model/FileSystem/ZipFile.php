@@ -15,7 +15,7 @@ class ZipFile extends File
      *
      * @param string $dirPath dir path
      *
-     * @return self
+     * @return Dir
      */
     public function unzipTo($dirPath = '.')
     {
@@ -29,6 +29,6 @@ class ZipFile extends File
         $zip->extractTo($dirPath);
         $zip->close();
 
-        return $this;
+        return new Dir($dirPath);
     }
 }

@@ -3,6 +3,7 @@
 namespace SimpleStructure\Model;
 
 use SimpleStructure\Http\Response;
+use SimpleStructure\Model\FileSystem\FileContent;
 use SimpleStructure\Tool\ParamPack;
 
 /**
@@ -19,18 +20,23 @@ class Resource
     /** @var int */
     private $statusCode;
 
+    /** @var string */
+    private $url;
+
     /**
      * Construct
      *
      * @param string $content    content
      * @param array  $headers    headers
      * @param int    $statusCode status code
+     * @param string $url        URL
      */
-    public function __construct($content, array $headers = [], $statusCode = Response::OK)
+    public function __construct($content, array $headers = [], $statusCode = Response::OK, $url = '')
     {
         $this->headers = new ParamPack($headers);
         $this->content = $content;
         $this->statusCode = $statusCode;
+        $this->url = $url;
     }
 
     /**
@@ -42,13 +48,19 @@ class Resource
      */
     public function getContent($format = 'string')
     {
-        if ($format === 'json') {
-            return json_decode($this->content);
-        } elseif ($format === 'json-array') {
-            return json_decode($this->content, true);
-        }
+        switch ($format) {
+            case 'json':
+                return json_decode($this->content);
 
-        return $this->content;
+            case 'json-array':
+                return json_decode($this->content, true);
+
+            case 'file':
+                return new FileContent($this->url, $this->content);
+
+            default:
+                return $this->content;
+        }
     }
 
     /**
@@ -69,6 +81,16 @@ class Resource
     public function getContentParams()
     {
         return new ParamPack($this->getContent('json-array'));
+    }
+
+    /**
+     * Get file content
+     *
+     * @return FileContent
+     */
+    public function getFileContent()
+    {
+        return $this->getContent('file');
     }
 
     /**

@@ -7,12 +7,11 @@ use finfo;
 use SimpleStructure\Exception\BadMethodCallException;
 use SimpleStructure\Exception\InvalidArgumentException;
 use SimpleStructure\Exception\RuntimeException;
-use stdClass;
 
 /**
  * File model
  */
-class File
+class File extends FileAbstract
 {
     /** @var string */
     protected $path;
@@ -41,7 +40,7 @@ class File
      * @param int|null    $error     error
      * @param bool        $temporary temporary
      *
-     * @return self
+     * @return File|CsvFile|ZipFile
      */
     public static function create($path, $baseName = null, $size = null, $error = null, $temporary = false)
     {
@@ -54,6 +53,9 @@ class File
         $extension = $pathInfo['extension'];
 
         switch ($extension) {
+            case 'csv':
+                return new CsvFile($path, $fileName, $extension, $size, $error, $temporary);
+
             case 'zip':
                 return new ZipFile($path, $fileName, $extension, $size, $error, $temporary);
 
@@ -98,7 +100,7 @@ class File
      */
     public function copyTo($dirPath, $fileName = null)
     {
-        $destination = $this->getDestination($dirPath, $fileName, true);
+        $destination = $this->getDestination($dirPath, $fileName ?: $this->fileName, $this->extension, true);
         if ($this->isUploaded()) {
             throw new BadMethodCallException(sprintf('Uploaded file %s can not be copied.', $this->path));
         } else {
@@ -121,7 +123,7 @@ class File
      */
     public function moveTo($dirPath, $fileName = null)
     {
-        $destination = $this->getDestination($dirPath, $fileName, true);
+        $destination = $this->getDestination($dirPath, $fileName ?: $this->fileName, $this->extension, true);
         if ($this->isUploaded()) {
             if (!move_uploaded_file($this->path, $destination->path)) {
                 throw new RuntimeException(sprintf('An error occurred during uploaded file %s moving.',
@@ -179,29 +181,6 @@ class File
         $exists = is_file($this->path);
 
         return $exists;
-    }
-
-    /**
-     * Get destination
-     *
-     * @param string      $dirPath      dir path
-     * @param string|null $fileName     file name
-     * @param bool        $generateDirs generate directories
-     *
-     * @return stdClass
-     */
-    protected function getDestination($dirPath, $fileName = null, $generateDirs = false)
-    {
-        $destination = new stdClass();
-        $destination->fileName = isset($fileName) ? $fileName : $this->fileName;
-        $destination->extension = $this->unifyExtension($this->extension);
-        $dirPath = rtrim(str_replace('\\', '/', $dirPath), '/');
-        $destination->path = $dirPath . '/' . $destination->fileName . '.' . $destination->extension;
-        if ($generateDirs && !is_dir($dirPath)) {
-            mkdir($dirPath, 0777, true);
-        }
-
-        return $destination;
     }
 
     /**
@@ -399,24 +378,5 @@ class File
         }
 
         return $contentType;
-    }
-
-    /**
-     * Unify extension
-     *
-     * @param string $extension extension
-     *
-     * @return string
-     */
-    private function unifyExtension($extension)
-    {
-        $extension = strtolower($extension);
-        switch ($extension) {
-            case 'jpeg':
-                return 'jpg';
-
-            default:
-                return $extension;
-        }
     }
 }

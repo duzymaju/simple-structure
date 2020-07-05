@@ -153,6 +153,6 @@ class Client
             throw new RuntimeException('An error received in HTTP response.');
         }
 
-        return new Resource($content, $headers, $statusCode);
+        return new Resource($content, $headers, $statusCode, $url);
     }
 }
