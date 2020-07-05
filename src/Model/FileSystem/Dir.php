@@ -42,6 +42,18 @@ class Dir
     }
 
     /**
+     * Get children
+     *
+     * @return (Dir|File)[]
+     */
+    public function getChildren()
+    {
+        return array_map(function ($path) {
+            return is_dir($path) ? new Dir($path) : File::create($path);
+        }, $this->getChildrenPaths());
+    }
+
+    /**
      * Get children paths
      *
      * @return string[]

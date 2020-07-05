@@ -116,11 +116,11 @@ class CsvFile extends File
 
         if ($this->fileHandler !== false) {
             $data = fgetcsv($this->fileHandler, $this->length, $this->delimiter, $this->enclosure, $this->escape);
-            if ($data === false) {
-                fclose($this->fileHandler);
-                $this->fileHandler = false;
+            if ($data !== false) {
+                return $this->useColumnNames && $this->columnNames ? array_combine($this->columnNames, $data) : $data;
             }
-            return $this->useColumnNames && $this->columnNames ? array_combine($this->columnNames, $data) : $data;
+            fclose($this->fileHandler);
+            $this->fileHandler = false;
         }
 
         return null;
