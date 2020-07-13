@@ -7,6 +7,13 @@ namespace SimpleStructure\Model\FileSystem;
  */
 class CsvFile extends File
 {
+    /**
+     * BOM marker - it has to be doublequoted!
+     *
+     * @var string
+     */
+    const BOM = "\xef\xbb\xbf";
+
     /** @var resource|false */
     private $fileHandler = false;
 
@@ -107,10 +114,16 @@ class CsvFile extends File
     {
         if ($this->fileHandler === false) {
             $this->fileHandler = fopen($this->getPath(), 'r');
-            if ($this->fileHandler !== false && $this->useColumnNames) {
-                $this->columnNames = fgetcsv(
-                    $this->fileHandler, $this->length, $this->delimiter, $this->enclosure, $this->escape
-                ) ?: [];
+            if ($this->fileHandler !== false) {
+                $hasBom = fgets($this->fileHandler, 4) === self::BOM;
+                if (!$hasBom) {
+                    rewind($this->fileHandler);
+                }
+                if ($this->useColumnNames) {
+                    $this->columnNames = fgetcsv(
+                        $this->fileHandler, $this->length, $this->delimiter, $this->enclosure, $this->escape
+                    ) ?: [];
+                }
             }
         }
 
