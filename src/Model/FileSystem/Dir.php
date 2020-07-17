@@ -16,14 +16,21 @@ class Dir
     /**
      * Construct
      *
-     * @param string $path path
+     * @param string $path                path
+     * @param bool   $createIfDoesntExist create if doesn't exist
      *
      * @throws InvalidArgumentException
      */
-    public function __construct($path)
+    public function __construct($path, $createIfDoesntExist = false)
     {
-        if (empty($path) || !is_dir($path)) {
-            throw new InvalidArgumentException('Dir path is invalid!');
+        if (empty($path)) {
+            throw new InvalidArgumentException('Dir path is empty!');
+        } else if (!is_dir($path)) {
+            if ($createIfDoesntExist) {
+                mkdir($path, 0777, true);
+            } else {
+                throw new InvalidArgumentException('Dir path is invalid!');
+            }
         }
 
         $this->path = rtrim($path, '/');
