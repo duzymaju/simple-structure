@@ -18,6 +18,9 @@ class Paginator extends ArrayObject implements JsonSerializable
     /** @var int|null */
     public $pages;
 
+    /** @var int|null */
+    public $total;
+
     /**
      * Constructor
      *
@@ -34,6 +37,7 @@ class Paginator extends ArrayObject implements JsonSerializable
         $this->pack = isset($pack) ? max(1, (int) $pack) : null;
         $this->pages = !isset($totalNumber) ? null :
             (isset($this->pack) ? (int) ceil(max(0, (int) $totalNumber) / $this->pack) : 1);
+        $this->total = $totalNumber;
     }
 
     /**
@@ -83,6 +87,7 @@ class Paginator extends ArrayObject implements JsonSerializable
             'list' => $this->getArrayCopy(),
             'pack' => $this->pack,
             'page' => $this->page,
+            'total' => $this->total,
         ];
         if (isset($this->pages)) {
             $result['pages'] = $this->pages;
