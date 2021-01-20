@@ -110,6 +110,24 @@ final class ContainerTest extends TestCase
     }
 
     /**
+     * Test object setting with dependency set as method call to prevent circular dependency
+     */
+    public function testObjectSettingWithDependencySetAsMethodCallToPreventCircularDependency()
+    {
+        $container = new Container();
+        $container->setObject('object1', 'ContainerTestClass', ['object2', 'object3'], ['value']);
+        $container->setObject('object2', 'ContainerTestClass');
+        $container->addObjectMethodCall('object2', 'addParam', ['object1']);
+        $container->addObjectMethodCall('object2', 'addParam', ['object3']);
+        $container->setObject('object3', 'ContainerTestClass', ['object2']);
+        $this->assertEquals('value', $container->get('object1')->params[2]);
+        $this->assertEquals('value', $container->get('object2')->params[0]->params[2]);
+        $this->assertEquals('value', $container->get('object1')->params[0]->params[0]->params[2]);
+        $this->assertEquals('value', $container->get('object3')->params[0]->params[0]->params[2]);
+        $this->assertEquals('value', $container->get('object1')->params[1]->params[0]->params[0]->params[2]);
+    }
+
+    /**
      * Test definition getting and new instance creating
      */
     public function testDefinitionGettingAndNewInstanceCreating()
@@ -194,6 +212,11 @@ class ContainerTestClass
     public function __construct(...$params)
     {
         $this->params = $params;
+    }
+
+    public function addParam($param)
+    {
+        $this->params[] = $param;
     }
 
     public function iterate($index)

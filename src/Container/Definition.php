@@ -3,6 +3,8 @@
 namespace SimpleStructure\Container;
 
 use SimpleStructure\Container;
+use SimpleStructure\Exception\BadMethodCallException;
+use stdClass;
 
 /**
  * Object definition
@@ -14,6 +16,9 @@ class Definition
 
     /** @var string|callable */
     private $classNameOrFactory;
+
+    /** @var stdClass[] */
+    private $methodCalls = [];
 
     /** @var string[] */
     private $dependencies;
@@ -38,6 +43,26 @@ class Definition
     }
 
     /**
+     * Add method call
+     *
+     * @param string   $methodName   method name
+     * @param string[] $dependencies dependencies
+     * @param array    $params       params
+     *
+     * @return self
+     */
+    public function addMethodCall($methodName, array $dependencies = [], array $params = [])
+    {
+        $this->methodCalls[] = (object) [
+            'dependencies' => $dependencies,
+            'methodName' => $methodName,
+            'params' => $params,
+        ];
+
+        return $this;
+    }
+
+    /**
      * Create
      *
      * @param array $params params
@@ -47,7 +72,43 @@ class Definition
     public function create(array $params = [])
     {
         $classNameOrFactory = $this->classNameOrFactory;
-        $dependencies = array_map(function ($typeName) {
+        $dependencies = $this->getDependencies($this->dependencies);
+
+        return is_callable($classNameOrFactory) ?
+            $classNameOrFactory(...$dependencies, ...$this->params, ...$params) :
+            new $classNameOrFactory(...$dependencies, ...$this->params, ...$params);
+    }
+
+    /**
+     * Call methods
+     *
+     * @param object $instance instance
+     *
+     * @return self
+     */
+    public function callMethods($instance)
+    {
+        foreach ($this->methodCalls as $methodCall) {
+            $methodName = $methodCall->methodName;
+            if (!method_exists($instance, $methodName)) {
+                throw new BadMethodCallException(sprintf('There is no %s method to call.', $methodName));
+            }
+            $instance->$methodName(...$this->getDependencies($methodCall->dependencies), ...$methodCall->params);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Get dependencies
+     *
+     * @param string[] $dependencies dependencies
+     *
+     * @return mixed[]
+     */
+    private function getDependencies(array $dependencies)
+    {
+        return array_map(function ($typeName) {
             $parts = explode(':', $typeName);
             if (count($parts) < 2) {
                 array_unshift($parts, '');
@@ -62,11 +123,6 @@ class Definition
                 default: // singleton
                     return $this->container->get($parts[1]);
             }
-        }, $this->dependencies);
-        $instance = is_callable($classNameOrFactory) ?
-            $classNameOrFactory(...$dependencies, ...$this->params, ...$params) :
-            new $classNameOrFactory(...$dependencies, ...$this->params, ...$params);
-
-        return $instance;
+        }, $dependencies);
     }
 }

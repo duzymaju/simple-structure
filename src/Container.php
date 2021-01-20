@@ -17,6 +17,9 @@ class Container
     /** @var mixed[] */
     private $items = [];
 
+    /** @var Definition[] */
+    private $pendingDefinitions = [];
+
     /**
      * Set object
      *
@@ -35,6 +38,28 @@ class Container
             throw new BadClassCallException(sprintf('Class "%s" doesn\'t exist.', $classNameOrFactory));
         }
         $this->definitions[$name] = new Definition($this, $classNameOrFactory, $dependencies, $params);
+
+        return $this;
+    }
+
+    /**
+     * Add object method call
+     *
+     * @param string   $name         name
+     * @param string   $methodName   method name
+     * @param string[] $dependencies dependencies
+     * @param array    $params       params
+     *
+     * @return self
+     *
+     * @throws BadDefinitionCallException
+     */
+    public function addObjectMethodCall($name, $methodName, array $dependencies = [], array $params = [])
+    {
+        $this
+            ->getDefinition($name)
+            ->addMethodCall($methodName, $dependencies, $params)
+        ;
 
         return $this;
     }
@@ -68,6 +93,15 @@ class Container
         }
         $this->items[$name] = $this->create($name);
 
+        if (count($this->pendingDefinitions) > 0 && $name === array_keys($this->pendingDefinitions)[0]) {
+            foreach ($this->pendingDefinitions as $itemName => $pendingDefinition) {
+                if (array_key_exists($itemName, $this->items)) {
+                    $pendingDefinition->callMethods($this->items[$itemName]);
+                }
+            }
+            $this->pendingDefinitions = [];
+        }
+
         return $this->items[$name];
     }
 
@@ -97,10 +131,10 @@ class Container
      */
     public function create($name, array $params = [])
     {
-        return $this
-            ->getDefinition($name)
-            ->create($params)
-        ;
+        $definition = $this->getDefinition($name);
+        $this->pendingDefinitions[$name] = $definition;
+
+        return $definition->create($params);
     }
 
     /**
