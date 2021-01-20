@@ -62,7 +62,7 @@ final class PagesHelperTest extends TestCase
         $this->assertEquals(5, $pagesHelper->pack);
         $this->assertEquals(10, $pagesHelper->offset);
         $this->assertEquals(5, $pagesHelper->limit);
-        $paginator = $pagesHelper->getPaginator([ 1, 2, 3, 4, 5 ], 300);
+        $paginator = $pagesHelper->getPaginator([1, 2, 3, 4, 5], 300);
         $this->assertInstanceOf(Paginator::class, $paginator);
         $this->assertEquals(3, $paginator->page);
         $this->assertEquals(5, $paginator->pack);
