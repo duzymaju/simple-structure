@@ -115,52 +115,48 @@ final class ContainerTest extends TestCase
     public function testObjectSettingWithDependencySetAsMethodCallToPreventCircularDependency()
     {
         $container = new Container();
-        $container->setObject('object1', 'ContainerTestClass', ['object2', 'object3'], ['value']);
-        $container->setObject('object2', 'ContainerTestClass');
+        $container->setObject('object1', 'ContainerTestClass', ['object2', 'object3'], ['value1']);
+        $container->setObject('object2', 'ContainerTestClass', ['i:object4']);
         $container->addObjectMethodCall('object2', 'addParam', ['object1']);
         $container->addObjectMethodCall('object2', 'addParam', ['object3']);
         $container->setObject('object3', 'ContainerTestClass', ['object2']);
-        $this->assertEquals('value', $container->get('object1')->params[2]);
-        $this->assertEquals('value', $container->get('object2')->params[0]->params[2]);
-        $this->assertEquals('value', $container->get('object1')->params[0]->params[0]->params[2]);
-        $this->assertEquals('value', $container->get('object3')->params[0]->params[0]->params[2]);
-        $this->assertEquals('value', $container->get('object1')->params[1]->params[0]->params[0]->params[2]);
+        $container->setObject('object4', 'ContainerTestClass', [], ['value2']);
+        $this->assertEquals('value1', $container->get('object1')->params[2]);
+        $this->assertEquals('value2', $container->get('object2')->params[0]->params[0]);
+        $this->assertEquals('value1', $container->get('object2')->params[1]->params[2]);
+        $this->assertEquals('value1', $container->get('object1')->params[0]->params[1]->params[2]);
+        $this->assertEquals('value1', $container->get('object3')->params[0]->params[1]->params[2]);
+        $this->assertEquals('value1', $container->get('object1')->params[1]->params[0]->params[1]->params[2]);
     }
 
     /**
-     * Test definition getting and new instance creating
+     * Test object setting and instance creating with dependency set as method call to prevent circular dependency
      */
-    public function testDefinitionGettingAndNewInstanceCreating()
+    public function testObjectSettingAndInstanceCreatingWithDependencySetAsMethodCallToPreventCircularDependency()
     {
         $container = new Container();
-        $container->setObject('object', 'ContainerTestClass');
-        $definition = $container->getDefinition('object');
-        $this->assertInstanceOf('SimpleStructure\Container\Definition', $definition);
-        $instance1 = $definition->create([20]);
-        $this->assertInstanceOf('ContainerTestClass', $instance1);
-        $this->assertEquals(20, $instance1->params[0]);
-        $instance2 = $container->create('object', [30]);
-        $this->assertInstanceOf('ContainerTestClass', $instance2);
-        $this->assertEquals(30, $instance2->params[0]);
-    }
-
-    /**
-     * Test definition getting and new instance creating with predefined params
-     */
-    public function testDefinitionGettingAndNewInstanceCreatingWithPredefinedParams()
-    {
-        $container = new Container();
-        $container->setObject('object', 'ContainerTestClass', [], [10]);
-        $definition = $container->getDefinition('object');
-        $this->assertInstanceOf('SimpleStructure\Container\Definition', $definition);
-        $instance1 = $definition->create([20]);
-        $this->assertInstanceOf('ContainerTestClass', $instance1);
-        $this->assertEquals(10, $instance1->params[0]);
-        $this->assertEquals(20, $instance1->params[1]);
-        $instance2 = $container->create('object', [30]);
-        $this->assertInstanceOf('ContainerTestClass', $instance2);
-        $this->assertEquals(10, $instance2->params[0]);
-        $this->assertEquals(30, $instance2->params[1]);
+        $container->setObject('object1', 'ContainerTestClass', ['object2', 'i:object3'], [10]);
+        $container->setObject('object2', 'ContainerTestClass', [], [20]);
+        $container->addObjectMethodCall('object2', 'addParam', ['object1']);
+        $container->setObject('object3', 'ContainerTestClass', [], [30]);
+        $instanceA = $container->create('object1');
+        $instanceA->params[2] += 1;
+        $instanceA->params[1]->params[0] += 1;
+        $instanceA->params[0]->params[0] += 1;
+        $instanceA->params[0]->params[1]->params[2] += 1;
+        $this->assertEquals(11, $instanceA->params[2]);
+        $this->assertEquals(21, $instanceA->params[0]->params[0]);
+        $this->assertEquals(31, $instanceA->params[1]->params[0]);
+        $this->assertEquals(11, $instanceA->params[0]->params[1]->params[2]);
+        $instanceB = $container->create('object1');
+        $instanceB->params[2] += 1;
+        $instanceB->params[1]->params[0] += 1;
+        $instanceB->params[0]->params[0] += 1;
+        $instanceB->params[0]->params[1]->params[2] += 1;
+        $this->assertEquals(11, $instanceB->params[2]);
+        $this->assertEquals(22, $instanceB->params[0]->params[0]);
+        $this->assertEquals(31, $instanceB->params[1]->params[0]);
+        $this->assertEquals(12, $instanceB->params[0]->params[1]->params[2]);
     }
 
     /**

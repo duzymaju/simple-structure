@@ -5,6 +5,7 @@ namespace SimpleStructure;
 use SimpleStructure\Container\Definition;
 use SimpleStructure\Exception\BadClassCallException;
 use SimpleStructure\Exception\BadDefinitionCallException;
+use SimpleStructure\Exception\BadMethodCallException;
 
 /**
  * Container
@@ -16,9 +17,6 @@ class Container
 
     /** @var mixed[] */
     private $items = [];
-
-    /** @var Definition[] */
-    private $pendingDefinitions = [];
 
     /**
      * Set object
@@ -37,9 +35,24 @@ class Container
         if (!is_callable($classNameOrFactory) && !class_exists($classNameOrFactory)) {
             throw new BadClassCallException(sprintf('Class "%s" doesn\'t exist.', $classNameOrFactory));
         }
-        $this->definitions[$name] = new Definition($this, $classNameOrFactory, $dependencies, $params);
+        $this->definitions[$name] = new Definition($classNameOrFactory, $dependencies, $params);
 
         return $this;
+    }
+
+    /**
+     * Set
+     *
+     * @param string          $name               name
+     * @param string|callable $classNameOrFactory class name or factory
+     * @param string[]        $dependencies       dependencies
+     * @param array           $params             params
+     *
+     * @return self
+     */
+    public function set($name, $classNameOrFactory, array $dependencies = [], array $params = [])
+    {
+        return $this->setObject($name, $classNameOrFactory, $dependencies, $params);
     }
 
     /**
@@ -88,37 +101,11 @@ class Container
      */
     public function get($name)
     {
-        if (array_key_exists($name, $this->items)) {
-            return $this->items[$name];
-        }
-        $this->items[$name] = $this->create($name);
+        $pendingDefinitions = [];
+        $dependency = $this->getDependency($name, $pendingDefinitions);
+        $this->callMethods($pendingDefinitions);
 
-        if (count($this->pendingDefinitions) > 0 && $name === array_keys($this->pendingDefinitions)[0]) {
-            foreach ($this->pendingDefinitions as $itemName => $pendingDefinition) {
-                if (array_key_exists($itemName, $this->items)) {
-                    $pendingDefinition->callMethods($this->items[$itemName]);
-                }
-            }
-            $this->pendingDefinitions = [];
-        }
-
-        return $this->items[$name];
-    }
-
-    /**
-     * Get definition
-     *
-     * @param string $name name
-     *
-     * @return Definition
-     */
-    public function getDefinition($name)
-    {
-        if (!array_key_exists($name, $this->definitions)) {
-            throw new BadDefinitionCallException(sprintf('Definition "%s" doesn\'t exist.', $name));
-        }
-
-        return $this->definitions[$name];
+        return $dependency;
     }
 
     /**
@@ -131,24 +118,121 @@ class Container
      */
     public function create($name, array $params = [])
     {
-        $definition = $this->getDefinition($name);
-        $this->pendingDefinitions[$name] = $definition;
+        $pendingDefinitions = [];
+        $dependency = $this->createDependency($name, $pendingDefinitions, $params);
+        $this->callMethods($pendingDefinitions);
 
-        return $definition->create($params);
+        return $dependency;
     }
 
     /**
-     * Set
+     * Get dependency
      *
-     * @param string          $name               name
-     * @param string|callable $classNameOrFactory class name or factory
-     * @param string[]        $dependencies       dependencies
-     * @param array           $params             params
+     * @param string       $name                name
+     * @param Definition[] &$pendingDefinitions pending definitions
+     *
+     * @return mixed
+     */
+    private function getDependency($name, array &$pendingDefinitions)
+    {
+        if (array_key_exists($name, $this->items)) {
+            return $this->items[$name];
+        }
+        $this->items[$name] = $this->createDependency($name, $pendingDefinitions);
+
+        return $this->items[$name];
+    }
+
+    /**
+     * Create dependency
+     *
+     * @param string       $name                name
+     * @param Definition[] &$pendingDefinitions pending definitions
+     * @param array        $params              params
+     *
+     * @return mixed
+     */
+    private function createDependency($name, array &$pendingDefinitions, array $params = [])
+    {
+        $definition = $this->getDefinition($name);
+        $pendingDefinitions[$name] = $definition;
+
+        $classNameOrFactory = $definition->classNameOrFactory;
+        $dependencies = $this->getDependencies($definition->dependencies, $pendingDefinitions);
+
+        return is_callable($classNameOrFactory) ?
+            $classNameOrFactory(...$dependencies, ...$definition->params, ...$params) :
+            new $classNameOrFactory(...$dependencies, ...$definition->params, ...$params);
+    }
+
+    /**
+     * Get dependencies
+     *
+     * @param string[]     $dependencies        dependencies
+     * @param Definition[] &$pendingDefinitions pending definitions
+     *
+     * @return mixed[]
+     */
+    private function getDependencies(array $dependencies, array &$pendingDefinitions = [])
+    {
+        return array_map(function ($typeName) use (&$pendingDefinitions) {
+            $parts = explode(':', $typeName);
+            if (count($parts) < 2) {
+                array_unshift($parts, '');
+            }
+            switch ($parts[0]) {
+                case 'i': // instance
+                    return $this->createDependency($parts[1], $pendingDefinitions);
+
+                case 'd': // definition
+                    return $this->getDefinition($parts[1]);
+
+                default: // singleton
+                    return $this->getDependency($parts[1], $pendingDefinitions);
+            }
+        }, $dependencies);
+    }
+
+    /**
+     * Call methods
+     *
+     * @param Definition[] &$pendingDefinitions pending definitions
      *
      * @return self
      */
-    public function set($name, $classNameOrFactory, array $dependencies = [], array $params = [])
+    private function callMethods(&$pendingDefinitions)
     {
-        return $this->setObject($name, $classNameOrFactory, $dependencies, $params);
+        foreach ($pendingDefinitions as $itemName => $pendingDefinition) {
+            if (array_key_exists($itemName, $this->items)) {
+                $item = $this->items[$itemName];
+                foreach ($pendingDefinition->methodCalls as $methodCall) {
+                    $methodName = $methodCall->methodName;
+                    if (!method_exists($item, $methodName)) {
+                        throw new BadMethodCallException(sprintf('There is no %s method to call.', $methodName));
+                    }
+                    $item->$methodName(
+                        ...$this->getDependencies($methodCall->dependencies), ...$methodCall->params
+                    );
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Get definition
+     *
+     * @param string $name name
+     *
+     * @return Definition
+     */
+    private function getDefinition($name)
+    {
+        if (!array_key_exists($name, $this->definitions)) {
+            throw new BadDefinitionCallException(sprintf('Definition "%s" doesn\'t exist.', $name));
+        }
+
+        return $this->definitions[$name];
     }
 }

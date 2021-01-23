@@ -16,7 +16,7 @@ final class PaginatorTest extends TestCase
         $this->assertEquals(1, $paginator->page);
         $this->assertEquals(null, $paginator->pages);
         $this->assertTrue($paginator->isLast());
-        $this->assertEquals('{"isLast":true,"list":[],"pack":null,"page":1}', json_encode($paginator));
+        $this->assertEquals('{"isLast":true,"list":[],"pack":null,"page":1,"total":null}', json_encode($paginator));
     }
 
     /**
@@ -100,6 +100,8 @@ final class PaginatorTest extends TestCase
         $this->assertEquals(3, $paginator->pages);
         $this->assertEquals([[11], [12]], $paginator->getInGroups(2));
         $this->assertTrue($paginator->isLast());
-        $this->assertEquals('{"isLast":true,"list":[11,12],"pack":5,"page":3,"pages":3}', json_encode($paginator));
+        $this->assertEquals(
+            '{"isLast":true,"list":[11,12],"pack":5,"page":3,"total":12,"pages":3}', json_encode($paginator)
+        );
     }
 }
