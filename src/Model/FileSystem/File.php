@@ -108,9 +108,8 @@ class File extends FileAbstract
                 throw new RuntimeException(sprintf('An error occurred during file %s copying.', $this->path));
             }
         }
-        $copiedFile = new self($destination->path, $destination->fileName, $destination->extension, $this->size);
 
-        return $copiedFile;
+        return new self($destination->path, $destination->fileName, $destination->extension, $this->size);
     }
 
     /**
@@ -166,9 +165,7 @@ class File extends FileAbstract
      */
     public function getCurlFile()
     {
-        $file = new CURLFile($this->path, $this->getContentType(), $this->getFileNameWithExt());
-
-        return $file;
+        return new CURLFile($this->path, $this->getContentType(), $this->getFileNameWithExt());
     }
 
     /**
@@ -178,9 +175,7 @@ class File extends FileAbstract
      */
     public function exists()
     {
-        $exists = is_file($this->path);
-
-        return $exists;
+        return is_file($this->path);
     }
 
     /**
@@ -190,9 +185,7 @@ class File extends FileAbstract
      */
     public function isUploaded()
     {
-        $isUploaded = $this->temporary && is_uploaded_file($this->path);
-
-        return $isUploaded;
+        return $this->temporary && is_uploaded_file($this->path);
     }
 
     /**
@@ -254,9 +247,7 @@ class File extends FileAbstract
      */
     public function getSize()
     {
-        $size = isset($this->size) ? $this->size : filesize($this->path);
-
-        return $size;
+        return isset($this->size) ? $this->size : filesize($this->path);
     }
 
     /**
@@ -266,9 +257,7 @@ class File extends FileAbstract
      */
     public function getContent()
     {
-        $content = file_get_contents($this->path);
-
-        return $content;
+        return file_get_contents($this->path);
     }
 
     /**
@@ -288,9 +277,7 @@ class File extends FileAbstract
      */
     public function hasError()
     {
-        $hasError = isset($this->error) && $this->error != UPLOAD_ERR_OK;
-
-        return $hasError;
+        return isset($this->error) && $this->error != UPLOAD_ERR_OK;
     }
 
     /**

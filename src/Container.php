@@ -196,11 +196,11 @@ class Container
     /**
      * Call methods
      *
-     * @param Definition[] &$pendingDefinitions pending definitions
+     * @param Definition[] $pendingDefinitions pending definitions
      *
      * @return self
      */
-    private function callMethods(&$pendingDefinitions)
+    private function callMethods($pendingDefinitions)
     {
         foreach ($pendingDefinitions as $itemName => $pendingDefinition) {
             if (array_key_exists($itemName, $this->items)) {

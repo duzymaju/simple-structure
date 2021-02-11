@@ -47,9 +47,7 @@ class ParamPack
      */
     public function getRaw($name, $defaultValue = null)
     {
-        $value = $this->has($name) ? $this->params[$name] : $defaultValue;
-
-        return $value;
+        return $this->has($name) ? $this->params[$name] : $defaultValue;
     }
 
     /**
@@ -63,20 +61,17 @@ class ParamPack
     public function get($name, $defaultValue = null)
     {
         if ($this->has($name)) {
-            $value = $this->stripSlashes($this->params[$name]);
-        } else {
-            foreach ($this->parentPacks as $parentPack) {
-                $value = $parentPack->get($name);
-                if (isset($value)) {
-                    break;
-                }
-            }
-            if (!isset($value)) {
-                $value = $defaultValue;
+            return $this->params[$name];
+        }
+
+        foreach ($this->parentPacks as $parentPack) {
+            $value = $parentPack->get($name);
+            if (isset($value)) {
+                return $value;
             }
         }
 
-        return $value;
+        return $defaultValue;
     }
 
     /**
@@ -91,9 +86,8 @@ class ParamPack
     public function getString($name, $defaultValue = null, $length = null)
     {
         $value = $this->get($name);
-        $result = isset($value) ? Parser::parseString($value, $length) : $defaultValue;
 
-        return $result;
+        return isset($value) ? Parser::parseString($value, $length) : $defaultValue;
     }
 
     /**
@@ -107,9 +101,8 @@ class ParamPack
     public function getInt($name, $defaultValue = null)
     {
         $value = $this->get($name);
-        $result = isset($value) ? Parser::parseInt($value) : $defaultValue;
 
-        return $result;
+        return isset($value) ? Parser::parseInt($value) : $defaultValue;
     }
 
     /**
@@ -123,9 +116,8 @@ class ParamPack
     public function getFloat($name, $defaultValue = null)
     {
         $value = $this->get($name);
-        $result = isset($value) ? Parser::parseFloat($value) : $defaultValue;
 
-        return $result;
+        return isset($value) ? Parser::parseFloat($value) : $defaultValue;
     }
 
     /**
@@ -139,9 +131,8 @@ class ParamPack
     public function getBool($name, $defaultValue = null)
     {
         $value = $this->get($name);
-        $result = isset($value) ? Parser::parseBool($value) : $defaultValue;
 
-        return $result;
+        return isset($value) ? Parser::parseBool($value) : $defaultValue;
     }
 
     /**
@@ -155,9 +146,8 @@ class ParamPack
     public function getObject($name, $defaultValue = null)
     {
         $value = $this->get($name);
-        $result = isset($value) ? Parser::parseObject($value) : $defaultValue;
 
-        return $result;
+        return isset($value) ? Parser::parseObject($value) : $defaultValue;
     }
 
     /**
@@ -171,9 +161,8 @@ class ParamPack
     public function getArray($name, $defaultValue = [])
     {
         $value = $this->get($name);
-        $result = isset($value) ? Parser::parseArray($value) : $defaultValue;
 
-        return $result;
+        return isset($value) ? Parser::parseArray($value) : $defaultValue;
     }
 
     /**
@@ -188,9 +177,8 @@ class ParamPack
     public function getStringArray($name, $defaultValue = [], $length = null)
     {
         $value = $this->get($name);
-        $result = isset($value) ? Parser::parseStringArray($value, $length) : $defaultValue;
 
-        return $result;
+        return isset($value) ? Parser::parseStringArray($value, $length) : $defaultValue;
     }
 
     /**
@@ -204,9 +192,8 @@ class ParamPack
     public function getIntArray($name, $defaultValue = [])
     {
         $value = $this->get($name);
-        $result = isset($value) ? Parser::parseIntArray($value) : $defaultValue;
 
-        return $result;
+        return isset($value) ? Parser::parseIntArray($value) : $defaultValue;
     }
 
     /**
@@ -220,9 +207,8 @@ class ParamPack
     public function getFloatArray($name, $defaultValue = [])
     {
         $value = $this->get($name);
-        $result = isset($value) ? Parser::parseFloatArray($value) : $defaultValue;
 
-        return $result;
+        return isset($value) ? Parser::parseFloatArray($value) : $defaultValue;
     }
 
     /**
@@ -236,9 +222,8 @@ class ParamPack
     public function getBoolArray($name, $defaultValue = [])
     {
         $value = $this->get($name);
-        $result = isset($value) ? Parser::parseBoolArray($value) : $defaultValue;
 
-        return $result;
+        return isset($value) ? Parser::parseBoolArray($value) : $defaultValue;
     }
 
     /**
@@ -307,48 +292,6 @@ class ParamPack
      */
     public function has($name)
     {
-        $valueExists = array_key_exists($name, $this->params);
-
-        return $valueExists;
-    }
-
-    /**
-     * Strip slashes
-     *
-     * @param mixed $value value
-     *
-     * @return mixed
-     */
-    private function stripSlashes($value)
-    {
-        if (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) {
-            if (is_array($value)) {
-                $value = $this->stripSlashesRecursively($value);
-            } elseif (is_string($value)) {
-                $value = stripslashes($value);
-            }
-        }
-
-        return $value;
-    }
-
-    /**
-     * Strip slashes recursively
-     *
-     * @param array $array array
-     *
-     * @return array
-     */
-    private function stripSlashesRecursively(array $array)
-    {
-        foreach ($array as $key => $value) {
-            if (is_array($value)) {
-                $array[$key] = $this->stripSlashesRecursively($value);
-            } elseif (is_string($value)) {
-                $array[$key] = stripslashes($value);
-            }
-        }
-
-        return $array;
+        return array_key_exists($name, $this->params);
     }
 }

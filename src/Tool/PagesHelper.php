@@ -48,8 +48,6 @@ class PagesHelper
      */
     public function getPaginator(array $items = [], $totalNumber = null)
     {
-        $paginator = new Paginator($items, $this->page, $this->pack, $totalNumber);
-
-        return $paginator;
+        return new Paginator($items, $this->page, $this->pack, $totalNumber);
     }
 }

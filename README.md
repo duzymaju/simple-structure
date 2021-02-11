@@ -4,4 +4,4 @@ Simple PHP project's structure
 
 ## Testing
 
-To run unit tests type `composer run-script test`.
+To run unit tests type `composer run test`.

@@ -8,7 +8,7 @@ namespace SimpleStructure\Model\FileSystem;
 class CsvFile extends File
 {
     /**
-     * BOM marker - it has to be doublequoted!
+     * BOM marker - it has to be double quoted!
      *
      * @var string
      */

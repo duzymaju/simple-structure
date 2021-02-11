@@ -253,9 +253,8 @@ class Request
             $path = ($absolutePath === true ? $this->getPageAddress() : ($this->isValidProtocol($absolutePath) ?
                 $this->getPageAddress($absolutePath) : $absolutePath)) . $path;
         }
-        $url = $path . $this->getQueryString($params, $escapeUrl ? '&amp;' : '&');
 
-        return $url;
+        return $path . $this->getQueryString($params, $escapeUrl ? '&amp;' : '&');
     }
 
     /**
@@ -276,9 +275,8 @@ class Request
                 unset($params[$key]);
             }
         }
-        $queryString = count($params) > 0 ? $prefix . implode($paramsJoint, $params) : '';
 
-        return $queryString;
+        return count($params) > 0 ? $prefix . implode($paramsJoint, $params) : '';
     }
 
     /**

@@ -1,5 +1,7 @@
 <?php
 
+namespace Tool;
+
 use PHPUnit\Framework\TestCase;
 use SimpleStructure\Tool\Parser;
 
@@ -10,7 +12,7 @@ final class ParserTest extends TestCase
      */
     public function testSlugParsing()
     {
-        $this->assertEquals(Parser::parseSlug('s GętĄ9 2[3]"\'6'), 's-geta9-236');
+        $this->assertEquals('s-geta9-236', Parser::parseSlug('s GętĄ9 2[3]"\'6'));
 
         $this->assertEquals('s-geta9-236', Parser::parseSlug('s GętĄ9 2[3]"\'6', '-'));
         $this->assertEquals('s_geta9_236', Parser::parseSlug('s GętĄ9 2[3]"\'6', '_'));

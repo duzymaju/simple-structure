@@ -51,7 +51,7 @@ class Dir
     /**
      * Get children
      *
-     * @return (Dir|File)[]
+     * @return Dir[]|File[]
      */
     public function getChildren()
     {

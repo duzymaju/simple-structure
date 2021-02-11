@@ -70,9 +70,8 @@ class Paginator extends ArrayObject implements JsonSerializable
         if (!isset($this->pack)) {
             return true;
         }
-        $isLast = isset($this->pages) ? $this->page >= $this->pages : $this->pack > $this->count();
 
-        return $isLast;
+        return isset($this->pages) ? $this->page >= $this->pages : $this->pack > $this->count();
     }
 
     /**
