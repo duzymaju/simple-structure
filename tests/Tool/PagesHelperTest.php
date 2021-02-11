@@ -1,7 +1,5 @@
 <?php
 
-namespace Tool;
-
 use PHPUnit\Framework\TestCase;
 use SimpleStructure\Tool\PagesHelper;
 use SimpleStructure\Tool\Paginator;
