@@ -44,11 +44,7 @@ class File extends FileAbstract
      */
     public static function create($path, $baseName = null, $size = null, $error = null, $temporary = false)
     {
-        if (empty($baseName)) {
-            $pathInfo = pathinfo($path);
-        } else {
-            $pathInfo = pathinfo($baseName);
-        }
+        $pathInfo = pathinfo(empty($baseName) ? $path : $baseName);
         $fileName = $pathInfo['filename'];
         $extension = $pathInfo['extension'];
 

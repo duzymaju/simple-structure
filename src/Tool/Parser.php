@@ -54,7 +54,7 @@ class Parser
      */
     public static function parseBool($value)
     {
-        return !in_array($value, ['false', 'null', '', '0']) || false;
+        return is_string($value) ? !in_array(strtolower($value), ['false', 'null', '', '0']) : (bool) $value;
     }
 
     /**

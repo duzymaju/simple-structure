@@ -2,6 +2,7 @@
 
 namespace SimpleStructure\Http;
 
+use SimpleStructure\Exception\InvalidArgumentException;
 use SimpleStructure\Exception\RuntimeException;
 use SimpleStructure\Model\Resource;
 
@@ -138,6 +139,14 @@ class Client
                 }
                 return $length;
             });
+        }
+        if (is_array($options['basicAuth'])) {
+            if (empty($options['basicAuth']['username']) || empty($options['basicAuth']['password'])) {
+                throw new InvalidArgumentException('BasicAuth credentials are invalid.');
+            }
+            curl_setopt($connection, CURLOPT_USERPWD, implode(':', [
+                $options['basicAuth']['username'], $options['basicAuth']['password'],
+            ]));
         }
 
         $content = curl_exec($connection);

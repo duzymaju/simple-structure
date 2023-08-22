@@ -78,7 +78,9 @@ class Action
 
         foreach ($actionPath as $index => $element) {
             $length = mb_strlen($element);
-            if ($element[0] === '{' && $element[$length - 1] === '}') {
+            $firstChar = mb_substr($element, 0, 1);
+            $lastChar = mb_substr($element, -1, 1);
+            if ($length > 2 && $firstChar === '{' && $lastChar === '}') {
                 $nameParts = explode(':', mb_substr($element, 1, $length - 2));
                 $name = $nameParts[0];
                 $value = $this->mapValue($requestPath[$index], count($nameParts) > 1 ? $nameParts[1] : null);

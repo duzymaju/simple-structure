@@ -6,6 +6,30 @@ use SimpleStructure\Tool\Parser;
 final class ParserTest extends TestCase
 {
     /**
+     * Test bool parsing
+     */
+    public function testBoolParsing()
+    {
+        $this->assertEquals(true, Parser::parseBool('true'));
+        $this->assertEquals(true, Parser::parseBool('TRue'));
+        $this->assertEquals(true, Parser::parseBool('1'));
+        $this->assertEquals(true, Parser::parseBool(1));
+        $this->assertEquals(true, Parser::parseBool('abc'));
+        $this->assertEquals(true, Parser::parseBool('-'));
+        $this->assertEquals(true, Parser::parseBool(-0.1));
+
+        $this->assertEquals(false, Parser::parseBool('false'));
+        $this->assertEquals(false, Parser::parseBool('faLSE'));
+        $this->assertEquals(false, Parser::parseBool(false));
+        $this->assertEquals(false, Parser::parseBool('null'));
+        $this->assertEquals(false, Parser::parseBool('NULL'));
+        $this->assertEquals(false, Parser::parseBool(null));
+        $this->assertEquals(false, Parser::parseBool('0'));
+        $this->assertEquals(false, Parser::parseBool(0));
+        $this->assertEquals(false, Parser::parseBool(0.0));
+    }
+
+    /**
      * Test slug parsing
      */
     public function testSlugParsing()
